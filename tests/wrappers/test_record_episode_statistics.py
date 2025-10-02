@@ -39,13 +39,14 @@ def test_record_episode_statistics_reset_info():
     ("num_envs", "asynchronous"), [(1, False), (1, True), (4, False), (4, True)]
 )
 def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
-    envs = gym.make_vec(
+    envs = gym.vector.make(
         "CartPole-v1",
         render_mode=None,
         num_envs=num_envs,
-        vectorization_mode="async" if asynchronous else "sync",
+        asynchronous=asynchronous,
+        disable_env_checker=True,
     )
-    envs = RecordEpisodeStatistics(envs)  # TODO: update this to use a vector wrapper
+    envs = RecordEpisodeStatistics(envs)
     max_episode_step = (
         envs.env_fns[0]().spec.max_episode_steps
         if asynchronous
@@ -66,7 +67,7 @@ def test_record_episode_statistics_with_vectorenv(num_envs, asynchronous):
 
 
 def test_wrong_wrapping_order():
-    envs = gym.make_vec("CartPole-v1", num_envs=3)
+    envs = gym.vector.make("CartPole-v1", num_envs=3, disable_env_checker=True)
     wrapped_env = RecordEpisodeStatistics(VectorListInfo(envs))
     wrapped_env.reset()
 

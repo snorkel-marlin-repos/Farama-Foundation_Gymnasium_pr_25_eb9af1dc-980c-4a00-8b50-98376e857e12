@@ -68,10 +68,6 @@ class Env(Generic[ObsType, ActType]):
     # Created
     _np_random: Optional[np.random.Generator] = None
 
-    # Environments are not vectorized by default.
-    # This would ideally be set in __init__, but we'd need people to call super()
-    is_vector_env = False
-
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, bool, dict]:
         """Run one timestep of the environment's dynamics using the agent actions.
 
@@ -115,7 +111,7 @@ class Env(Generic[ObsType, ActType]):
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
-    ) -> Tuple[ObsType, dict]:  # type: ignore
+    ) -> Tuple[ObsType, dict]:
         """Resets the environment to an initial internal state, returning an initial observation and info.
 
         This method generates a new starting state often with some randomness to ensure that the agent explores the
@@ -310,9 +306,6 @@ class Wrapper(Env[ObsType, ActType]):
         self._reward_range: Optional[Tuple[SupportsFloat, SupportsFloat]] = None
         self._metadata: Optional[dict] = None
 
-        # Default - each wrapper must set this to True if it supports vectorized environments
-        self._supports_vector: bool = False
-
     def __getattr__(self, name):
         """Returns an attribute with ``name``, unless ``name`` starts with an underscore."""
         if name.startswith("_"):
@@ -401,9 +394,11 @@ class Wrapper(Env[ObsType, ActType]):
         """Uses the :meth:`reset` of the :attr:`env` that can be overwritten to change the returned data."""
         return self.env.reset(**kwargs)
 
-    def render(self) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
+    def render(
+        self, *args, **kwargs
+    ) -> Optional[Union[RenderFrame, List[RenderFrame]]]:
         """Uses the :meth:`render` of the :attr:`env` that can be overwritten to change the returned data."""
-        return self.env.render()
+        return self.env.render(*args, **kwargs)
 
     def close(self):
         """Closes the wrapper and :attr:`env`."""
