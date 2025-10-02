@@ -1,16 +1,15 @@
 import numpy as np
 
-from gymnasium.vector import VectorWrapper, make
+from gymnasium.vector import VectorEnvWrapper, make
 
 
-class DummyWrapper(VectorWrapper):
+class DummyWrapper(VectorEnvWrapper):
     def __init__(self, env):
-        super().__init__(env)
         self.env = env
         self.counter = 0
 
-    def reset(self, **kwargs):
-        super().reset()
+    def reset_async(self, **kwargs):
+        super().reset_async()
         self.counter += 1
 
 
